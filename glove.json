@@ -1,0 +1,10 @@
+{
+    "path": "./data/glove.6B.300d.first20k.txt",
+    "distances_path": "./data/glove.6B.300d.first20k.distances.csv",
+    "vocab_size": 20000,
+    "host": "localhost",
+    "user": "glove",
+    "database": "glove", 
+    "password": "gl0v3",
+    "populated": true
+}
