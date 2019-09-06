@@ -17,6 +17,8 @@ CREATE TABLE distances (
 ALTER TABLE distances ADD PRIMARY KEY(term_a, term_b);
 CREATE INDEX distance_btree ON distances USING btree (distance);
 
+ALTER TABLE embeddings OWNER TO glove;
+ALTER TABLE distances OWNER TO glove;
 GRANT ALL PRIVILEGES ON DATABASE glove TO glove;
 GRANT ALL PRIVILEGES ON embeddings TO glove;
 GRANT ALL PRIVILEGES ON distances TO glove;
