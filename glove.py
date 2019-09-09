@@ -201,13 +201,6 @@ def main():
     with open(METADATA, mode="r") as r: meta = json.load(r)
     glove = Glove(meta)
 
-    start = time.time()
-    glove.populate_distances()
-    distance_storage_time = time.time() - start
-
-    print("Distance Storage Runtime: %s" % (distance_storage_time))
-
-
 
 if __name__ == "__main__":
     main()
