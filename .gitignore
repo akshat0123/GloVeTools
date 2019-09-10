@@ -1,3 +1,5 @@
+__pycache__
+glove.json
 data/*.txt
 data/*.csv
 .DS_Store

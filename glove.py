@@ -149,6 +149,48 @@ class Glove:
         return embeddings
 
 
+    def get_vocab(self, limit=None):
+        """ Returns a list of all the words in the vocabulary
+        """
+
+        count, seen, vocab = 0, set(), []
+        with open(self.meta["path"], mode="r") as r:
+            progress = tqdm(total = self.meta["vocab_size"])
+            line = r.readline()
+
+            while line:
+                
+                if limit is not None and count >= limit:
+                    break
+
+                term = line.strip().split(" ")[0]
+                if term not in seen:
+                    vocab.append(term)
+                    
+                line = r.readline()
+                progress.update(1)
+                count += 1
+
+        return vocab
+
+
+    def get_cluster(self, centroid, k):
+        """ Returns 'k' closest words to 'centroid' in the embeddings space
+        """
+
+        query = "SELECT term_b FROM clusters where term_a=%s order by distance desc limit %s;"
+
+        conn = self.get_conn()
+        cur = conn.cursor()
+        cur.execute(query, [centroid, k])
+
+        results = cur.fetchall()
+        if len(results) > 0:
+            results = [term[0] for term in results]
+
+        return results
+
+
     def get_embedding(self, word):
         """ Returns embedding values retrieved from Postgresql database for
             given word

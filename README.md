@@ -4,9 +4,13 @@ GloVe embeddings
 
 ### Prerequisites
 Place one of the GloVe data text files in the `data` directory and update the
-`distances\_path` field in the `glove.json` metadata file
+`path`, `distances_path`, and `vocab_size` fields in the `glove.json` metadata file
 
 ### Running 
+0) [Optional] Run `trim.py` to trim the starting dataset
 1) Run the `glove.sql` script (as a Postgres admin)
 2) Run the `glove.py` script
 3) Run the `load_distances.sql' script (as a Postgres admin)
+
+### Post
+1) Change the `populated` field in the `glove.json` metadata file to `true`
