@@ -149,6 +149,37 @@ class Glove:
         return embeddings
 
 
+    def get_cluster_dict(self, limit=None):
+        """ Returns a 2D dictionary with the first key specifiying a centroid
+            term and the second key specifying the closest term by rank
+
+            e.g.: clusters['animal'][2] => the 3rd closest word to 'animal'
+        """
+
+        query = "SELECT * FROM clusters ORDER BY term_a, distance DESC"
+        conn = self.get_conn()
+        cur = conn.cursor()
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        clusters, rank, seen = {}, 0, set()
+        for row in rows:
+
+            term_a, term_b, distance = row[0], row[1], row[2]
+
+            if term_a in seen:
+                rank += 1
+
+            else:
+                clusters[term_a] = {}
+                seen.add(term_a)
+                rank = 0
+
+            clusters[term_a][rank] = term_b
+
+        return clusters
+
+
     def get_vocab(self, limit=None):
         """ Returns a list of all the words in the vocabulary
         """
@@ -179,7 +210,6 @@ class Glove:
         """
 
         query = "SELECT term_b FROM clusters where term_a=%s order by distance desc limit %s;"
-
         conn = self.get_conn()
         cur = conn.cursor()
         cur.execute(query, [centroid, k])
