@@ -73,7 +73,7 @@ class Glove:
         conn, count, seen, vals = self.get_conn(), 0, set(), []
 
         with open(self.meta["path"], mode="r") as r:
-            progress, line = tqdm(total = self.meta["vocab_size"]), r.readline()
+            progress, line = tqdm(total = self.meta["vocab_size"], desc="Populating Embeddings Table"), r.readline()
 
             while line:
                 key, embedding = self.process_line(line)
@@ -129,7 +129,7 @@ class Glove:
 
         count, embeddings, seen = 0, {}, set()
         with open(self.meta["path"], mode="r") as r:
-            progress = tqdm(total = self.meta["vocab_size"])
+            progress = tqdm(total = self.meta["vocab_size"], desc="Retrieving Embeddings")
             line = r.readline()
 
             while line:
@@ -186,7 +186,7 @@ class Glove:
 
         count, seen, vocab = 0, set(), []
         with open(self.meta["path"], mode="r") as r:
-            progress = tqdm(total = self.meta["vocab_size"])
+            progress = tqdm(total = self.meta["vocab_size"], desc="Retrieving Vocabulary")
             line = r.readline()
 
             while line:
