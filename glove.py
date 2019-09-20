@@ -120,7 +120,6 @@ class Glove:
 
                     w.write('"%s"|"%s"|%.6f\n' % (term_a, term_b, distance))
 
-        
 
     def get_embedding_dict(self, limit=None):
         """ Returns a dictionary of all words in the vocabulary mapped to their
