@@ -16,7 +16,7 @@ def cosine_similarity(a, b):
     num = np.dot(a, b)
     den = np.linalg.norm(a) * np.linalg.norm(b)
 
-    return num/den
+    return (1 + (num/den)) / 2
 
 
 class Glove:
@@ -161,7 +161,7 @@ class Glove:
         cur.execute(query)
         rows = cur.fetchall()
 
-        clusters, rank, seen = {}, 0, set()
+        clusters, rank, seen = {}, 1, set()
         for row in rows:
 
             term_a, term_b, distance = row[0], row[1], row[2]
@@ -170,9 +170,9 @@ class Glove:
                 rank += 1
 
             else:
-                clusters[term_a] = {}
+                clusters[term_a] = { 0: term_a }
                 seen.add(term_a)
-                rank = 0
+                rank = 1
 
             clusters[term_a][rank] = term_b
 
@@ -185,7 +185,8 @@ class Glove:
 
         count, seen, vocab = 0, set(), []
         with open(self.meta["path"], mode="r") as r:
-            progress = tqdm(total = self.meta["vocab_size"], desc="Retrieving Vocabulary")
+            size = self.meta["vocab_size"] if limit is None else limit
+            progress = tqdm(total = size, desc="Retrieving Vocabulary")
             line = r.readline()
 
             while line:
@@ -205,17 +206,19 @@ class Glove:
 
 
     def get_cluster(self, centroid, k):
-        """ Returns 'k' closest words to 'centroid' in the embeddings space
+        """ Returns 'centroid' and 'k-1' closest words to 'centroid' in the
+            embeddings space
         """
 
         query = "SELECT term_b FROM clusters where term_a=%s order by distance desc limit %s;"
         conn = self.get_conn()
         cur = conn.cursor()
-        cur.execute(query, [centroid, k])
+        cur.execute(query, [centroid, k-1])
 
         results = cur.fetchall()
         if len(results) > 0:
             results = [term[0] for term in results]
+            results.insert(0, centroid)
 
         return results
 

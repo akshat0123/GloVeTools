@@ -1,4 +1,4 @@
-import argparse
+import argparse, string, re
 
 from nltk.corpus import stopwords
 from tqdm import tqdm
@@ -36,7 +36,7 @@ def main():
                 term = line.strip().split(' ')[0]
                 tag = nltk.pos_tag([term])[0][1]
 
-                if tag not in trim_pos and term not in stops:
+                if tag not in trim_pos and term not in stops and term not in string.punctuation and re.match('[A-Za-z0-9]', term) and not term.isdigit():
                     w.write(line)
                     count += 1
 
