@@ -3,3 +3,5 @@ glove.json
 data/*.txt
 data/*.csv
 .DS_Store
+stanford-postagger-2018-10-16
+glove.sql

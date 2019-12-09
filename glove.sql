@@ -1,7 +1,7 @@
-CREATE DATABASE glove_20k;
+CREATE DATABASE glove_twitter;
 CREATE USER glove WITH ENCRYPTED PASSWORD 'gl0v3';
 
-\c glove_20k;
+\c glove_twitter;
 
 CREATE TABLE embeddings (
     key VARCHAR(1000) PRIMARY KEY,
@@ -16,6 +16,6 @@ CREATE TABLE distances (
 
 ALTER TABLE embeddings OWNER TO glove;
 ALTER TABLE distances OWNER TO glove;
-GRANT ALL PRIVILEGES ON DATABASE glove_20k TO glove;
+GRANT ALL PRIVILEGES ON DATABASE glove_twitter TO glove;
 GRANT ALL PRIVILEGES ON embeddings TO glove;
 GRANT ALL PRIVILEGES ON distances TO glove;

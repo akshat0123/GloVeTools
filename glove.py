@@ -34,7 +34,7 @@ class Glove:
         
         if self.meta["populated"] == False:
             self.populate_embeddings()
-            self.populate_distances()
+            # self.populate_distances()
 
 
     def get_conn(self):

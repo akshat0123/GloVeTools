@@ -1,4 +1,4 @@
-\COPY distances FROM data/glove.840B.300d.first20k.trimmed.distances.csv DELIMITER '|' ESCAPE '\' CSV;
+\COPY distances FROM data/twitter.20k.pos.distances.csv DELIMITER '|' ESCAPE '\' CSV;
 
 ALTER TABLE distances ADD PRIMARY KEY(term_a, term_b);
 
