@@ -1,0 +1,11 @@
+{
+    "path": "/Users/akshat0123/Documents/Programs/TWEAT2/GloVeTools/data/twitter.pos.txt",
+    "distances_path": "/Users/akshat0123/Documents/Programs/TWEAT2/GloVeTools/data/twitter.pos.distances.csv",
+    "vocab_size": 9436,
+    "host": "localhost",
+    "user": "glove",
+    "database": "glove_groups", 
+    "password": "gl0v3",
+    "populated": true 
+}
+
