@@ -48,8 +48,10 @@ def main():
 
                 term = line.strip().split(' ')[0]
 
-                if term not in stops and not any(char in string.punctuation for char in term) and \
-                   not any(char.isdigit() for char in term):
+                if not any(char in string.punctuation for char in term) and \
+                   not any(not char.isalnum() for char in term) and \
+                   not any(char.isdigit() for char in term) and \
+                   term not in stops:
 
                     if args.spos:
                         tag = stanford_tagger.tag([term])[0][1]
