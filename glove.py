@@ -9,16 +9,6 @@ import numpy as np
 METADATA = "./glove.json"
 
 
-def cosine_similarity(a, b):
-    """ Returns cosine similarity of vectors 'a' and 'b'
-    """
-
-    num = np.dot(a, b)
-    den = np.linalg.norm(a) * np.linalg.norm(b)
-
-    return (1 + (num/den)) / 2
-
-
 class Glove:
     """ Class for pretrained GLOVE vectors
     """
@@ -33,8 +23,12 @@ class Glove:
         self.cache = {}
         
         if self.meta["populated"] == False:
+
             self.populate_embeddings()
-            # self.populate_distances()
+            self.meta["populated"] = True
+
+            with open(METADATA, 'w') as outfile: 
+                json.dump(self.meta, outfile, indent=4)
 
 
     def get_conn(self):
@@ -96,31 +90,6 @@ class Glove:
         self.insert_embeddings(conn, vals)
 
 
-    def populate_distances(self):
-        """ Populates the glove database with pairwise cosine similarities of
-            all the embeddings in the vocabulary
-        """
-
-        embeddings = self.get_embedding_dict()
-        vocab = list(embeddings.keys())
-        punctuation = string.punctuation
-
-        vals = []
-
-        with open(self.meta["distances_path"], mode="w") as w:
-            for aidx in trange(len(vocab)):
-                for bidx in range(1, len(vocab)-aidx):
-                    
-                    term_a, term_b = vocab[aidx], vocab[aidx + bidx]
-                    embed_a, embed_b = embeddings[term_a], embeddings[term_b]
-                    distance = cosine_similarity(embed_a, embed_b)
-
-                    if term_a in punctuation: term_a = "\\" + term_a
-                    if term_b in punctuation: term_b = "\\" + term_b
-
-                    w.write('"%s"|"%s"|%.6f\n' % (term_a, term_b, distance))
-
-
     def get_embedding_dict(self, limit=None):
         """ Returns a dictionary of all words in the vocabulary mapped to their
             embeddings
@@ -148,37 +117,6 @@ class Glove:
         return embeddings
 
 
-    def get_cluster_dict(self, limit=None):
-        """ Returns a 2D dictionary with the first key specifiying a centroid
-            term and the second key specifying the closest term by rank
-
-            e.g.: clusters['animal'][2] => the 3rd closest word to 'animal'
-        """
-
-        query = "SELECT * FROM clusters ORDER BY term_a, distance DESC"
-        conn = self.get_conn()
-        cur = conn.cursor()
-        cur.execute(query)
-        rows = cur.fetchall()
-
-        clusters, rank, seen = {}, 1, set()
-        for row in rows:
-
-            term_a, term_b, distance = row[0], row[1], row[2]
-
-            if term_a in seen:
-                rank += 1
-
-            else:
-                clusters[term_a] = { 0: term_a }
-                seen.add(term_a)
-                rank = 1
-
-            clusters[term_a][rank] = term_b
-
-        return clusters
-
-
     def get_vocab(self, limit=None):
         """ Returns a list of all the words in the vocabulary
         """
@@ -203,24 +141,6 @@ class Glove:
                 count += 1
 
         return vocab
-
-
-    def get_cluster(self, centroid, k):
-        """ Returns 'centroid' and 'k-1' closest words to 'centroid' in the
-            embeddings space
-        """
-
-        query = "SELECT term_b FROM clusters where term_a=%s order by distance desc limit %s;"
-        conn = self.get_conn()
-        cur = conn.cursor()
-        cur.execute(query, [centroid, k-1])
-
-        results = cur.fetchall()
-        if len(results) > 0:
-            results = [term[0] for term in results]
-            results.insert(0, centroid)
-
-        return results
 
 
     def get_embedding(self, word):
