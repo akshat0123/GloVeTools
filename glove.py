@@ -244,8 +244,7 @@ class ClusterCache:
 
 def main():
 
-    with open(METADATA, mode="r") as r: meta = json.load(r)
-    glove = Glove(meta)
+    glove = Glove(METADATA)
 
 
 if __name__ == "__main__":
