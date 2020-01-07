@@ -1,4 +1,5 @@
 {
+    "cachepath": "./data/glove.pickle",
     "path": "./data/glove.6B.300d.first20k.txt",
     "vocab_size": 20000,
     "host": "localhost",

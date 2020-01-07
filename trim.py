@@ -27,14 +27,16 @@ def main():
     # Parts of speech that will be kept
     keep_pos = [ "NN", "JJ" ]
 
-    stanford_tagger_model = './stanford-postagger-2018-10-16/models/english-bidirectional-distsim.tagger'
-    stanford_tagger_jar = './stanford-postagger-2018-10-16/stanford-postagger.jar'
-    stanford_tagger = StanfordPOSTagger(stanford_tagger_model, stanford_tagger_jar)
+    if args.spos:
+        stanford_tagger_model = './stanford-postagger-2018-10-16/models/english-bidirectional-distsim.tagger'
+        stanford_tagger_jar = './stanford-postagger-2018-10-16/stanford-postagger.jar'
+        stanford_tagger = StanfordPOSTagger(stanford_tagger_model, stanford_tagger_jar)
 
-    t1 = UnigramTagger(masc_tagged.tagged_sents())
-    t2 = UnigramTagger(brown.tagged_sents())
-    t3 = UnigramTagger(treebank.tagged_sents())
-    unigram_taggers = [t1, t2, t3]
+    if args.pos: 
+        t1 = UnigramTagger(masc_tagged.tagged_sents())
+        t2 = UnigramTagger(brown.tagged_sents())
+        t3 = UnigramTagger(treebank.tagged_sents())
+        unigram_taggers = [t1, t2, t3]
 
     count = 0
     with open(args.output, mode='w') as w:

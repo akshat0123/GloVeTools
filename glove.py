@@ -1,4 +1,4 @@
-import string, time, json
+import pickle, string, json, os
 
 from psycopg2.extras import execute_values
 from tqdm import trange, tqdm
@@ -14,13 +14,13 @@ class Glove:
     """
 
 
-    def __init__(self, meta):
+    def __init__(self, meta, cflag=True):
         """ Takes in metadata object listing database credentials and creates
             Glove object
         """
 
         self.meta = meta
-        self.cache = {}
+        self.edict = {}
         
         if self.meta["populated"] == False:
 
@@ -29,6 +29,35 @@ class Glove:
 
             with open(METADATA, 'w') as outfile: 
                 json.dump(self.meta, outfile, indent=4)
+
+        if cflag: self.build_cache()
+
+
+    def build_cache(self):
+        """ Loads embeddings and vocabulary as numpy arrays and dict from terms
+            to embeddings and loads them in memory
+
+            Data is pickled to keep from having to load on each run
+        """
+
+        if os.path.isfile(self.meta["cachepath"]):
+            with open(self.meta["cachepath"], 'rb') as infile: cache = pickle.load(infile)
+            self.embeddings = cache['embeddings']
+            self.vocab = cache['vocab']
+            self.vdict = cache['vdict']
+
+        else: 
+            self.vocab = np.asarray(self.get_vocab())
+            self.embeddings = np.asarray([self[term] for term in tqdm(self.vocab, desc='Retrieving Embeddings')])
+            self.vdict = { self.vocab[idx]: idx for idx in range(self.vocab.shape[0]) }
+
+            cache = { 
+                'embeddings': self.embeddings,
+                'vocab': self.vocab,
+                'vdict': self.vdict
+            }
+
+            with open(self.meta["cachepath"], 'wb') as outfile: pickle.dump(cache, outfile)
 
 
     def get_conn(self):
@@ -90,33 +119,6 @@ class Glove:
         self.insert_embeddings(conn, vals)
 
 
-    def get_embedding_dict(self, limit=None):
-        """ Returns a dictionary of all words in the vocabulary mapped to their
-            embeddings
-        """
-
-        count, embeddings, seen = 0, {}, set()
-        with open(self.meta["path"], mode="r") as r:
-            progress = tqdm(total = self.meta["vocab_size"], desc="Retrieving Embeddings")
-            line = r.readline()
-
-            while line:
-
-                if limit is not None and count >= limit: 
-                    break
-
-                key, embedding = self.process_line(line)
-
-                if key not in seen: 
-                    embeddings[key] = embedding.astype(np.float64)
-
-                line = r.readline()
-                progress.update(1)
-                count += 1
-
-        return embeddings
-
-
     def get_vocab(self, limit=None):
         """ Returns a list of all the words in the vocabulary
         """
@@ -161,8 +163,8 @@ class Glove:
             Throws an exception of the word is not in the corpus
         """
 
-        if word in self.cache:
-            embedding = self.cache[word]
+        if word in self.edict:
+            embedding = self.edict[word]
 
         else:
 
@@ -170,7 +172,7 @@ class Glove:
 
             if len(embedding) > 0:
                 embedding = np.asarray(embedding[0][0]).astype(np.float64)
-                self.cache[word] = embedding
+                self.edict[word] = embedding
 
             else:
                 raise KeyError(word)
