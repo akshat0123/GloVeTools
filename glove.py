@@ -14,11 +14,12 @@ class Glove:
     """
 
 
-    def __init__(self, meta, cflag=True):
-        """ Takes in metadata object listing database credentials and creates
+    def __init__(self, metapath, cflag=True):
+        """ Takes in metadata file listing database credentials and creates
             Glove object
         """
 
+        with open(metapath, 'r') as infile: meta = json.load(infile)
         self.meta = meta
         self.edict = {}
         
@@ -30,7 +31,10 @@ class Glove:
             with open(METADATA, 'w') as outfile: 
                 json.dump(self.meta, outfile, indent=4)
 
-        if cflag: self.build_cache()
+        self.cflag = False
+        if cflag: 
+            self.build_cache()
+            self.cflag = True 
 
 
     def build_cache(self):
@@ -190,6 +194,52 @@ class Glove:
         else: contains = False
 
         return contains
+
+
+class ClusterCache:
+    """ Class for clusters of pretrained GLOVE vectors
+    """
+
+
+    def __init__(self, model, k):
+        """ Takes in a Glove class instantiation and a cluster size
+        """
+
+        self.embeddings_norm = np.linalg.norm(model.embeddings, axis=1)
+        self.cembedding_cache = {}
+        self.cluster_cache = {}
+        self.model = model
+        self.k = k
+
+
+    def get_cluster(self, term):
+        """ Takes in a string and returns the cluster of terms nearest to the
+            given term and the cluster of embeddings nearest to the embedding of
+            the given term
+        """
+
+        if term not in self.cluster_cache: 
+
+            embedding = self.model[term]
+
+            num = np.dot(embedding, self.model.embeddings.T)
+            den = np.linalg.norm(embedding) * self.embeddings_norm
+
+            csims = ( 1 + (num / den) ) / 2
+            cargs = np.argsort(csims)[::-1][:self.k]
+
+            cex = self.model.embeddings[cargs]
+            cx = self.model.vocab[cargs]
+            
+            self.cembedding_cache[term] = cex
+            self.cluster_cache[term] = cx
+
+        else:
+
+            cex = self.cembeddings_cache[term]
+            cx = self.cluster_cache[term]
+
+        return cex, cx
 
 
 def main():
