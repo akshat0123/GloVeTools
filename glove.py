@@ -6,7 +6,12 @@ class Glove:
 
 
     def __init__(self, glovepath, cachepath, limit=100000):
-        """
+        """ Initialize glove class
+
+            Args: 
+                glovepath (string): Path for pretrained glove embeddings
+                cachepath (string): Path to store embedding pickle cache
+                limit (int): Maximum size of vocabulary
         """
 
         # Load embeddings 
