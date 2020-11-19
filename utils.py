@@ -86,13 +86,12 @@ def load_glove_embeddings(glovepath, cachepath, limit=float('inf')):
     return terms, embeddings
 
 
-def tokenize(string, stopwords, vocabulary):
+def tokenize(string, glove):
     """ Tokenize string into list of unique in-vocabulary words
 
         Args:
             string (string): string to be tokenized
-            stopwords (set): set of stopwords to ignore
-            vocabulary (set): vocabulary of words to be returned
+            glove (NLP4FinTools.glove.Glove): Glove language model class
 
         Returns:
             (list): list of tokens
@@ -100,8 +99,8 @@ def tokenize(string, stopwords, vocabulary):
 
     string = re.sub("[^a-zA-Z]", " ", string)
     tokens = [token for token in string.split(' ') if token != '']
-    tokens = [token for token in tokens if token not in stopwords]
-    tokens = [token for token in tokens if token in vocabulary]
+    tokens = [token for token in tokens if token not in glove.stops]
+    tokens = [token for token in tokens if token in glove]
     tokens = list(set(tokens))
 
     return tokens
